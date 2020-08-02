@@ -20,12 +20,28 @@ class _HomeState extends State<Home> {
   bool fileExists = false;
   Map<String, String> fileContent;
 
-  File createFile(Map<String, String> fileContent) {
-
+  void createFile(Map<String, String> fileContent, Directory dir, String fileName) {
+    print("Creating a file");
+    File file = new File(p.join(dir.path, fileName));
+    file.createSync();
+    fileExists = true;
+    file.writeAsStringSync(json.encode(fileContent));
   }
 
   void writeFile(String key, String value) {
-
+    print("Writing to the file");
+    Map<String, String> content = {key: value};
+    if(fileExists) {
+      print("File Exists");
+      Map<String, String> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+      jsonFileContent.addAll(content);
+      jsonFile.writeAsStringSync(json.encode(jsonFileContent));
+    }
+    else {
+      print("File Does not exist");
+      createFile(content, dir, fileName);
+    }
+    this.setState(() => fileContent = json.decode(jsonFile.readAsStringSync()));
   }
 
   @override
@@ -81,7 +97,7 @@ class _HomeState extends State<Home> {
           new Padding(padding: new EdgeInsets.only(top: 20.0)),
           new RaisedButton(
             child: new Text("Add key, value pair"),
-            onPressed: () => null,
+            onPressed: () => writeFile(keyInputController.text, valueInputController.text),
           )
         ],
       ),
