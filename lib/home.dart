@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -18,22 +20,26 @@ class _HomeState extends State<Home> {
   Directory dir;
   String fileName = "myJSONFile.json";
   bool fileExists = false;
-  Map<String, String> fileContent;
+  Map<String, dynamic> fileContent;
 
-  void createFile(Map<String, String> fileContent, Directory dir, String fileName) {
+  void createFile(Map<String, dynamic> fileContent, Directory dir, String fileName) {
     print("Creating a file");
     File file = new File(p.join(dir.path, fileName));
     file.createSync();
     fileExists = true;
+    print(fileContent.toString());
     file.writeAsStringSync(json.encode(fileContent));
+    print("I am also here");
   }
 
   void writeFile(String key, String value) {
     print("Writing to the file");
-    Map<String, String> content = {key: value};
+    Map<String, dynamic> content = {key: value};
     if(fileExists) {
       print("File Exists");
-      Map<String, String> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+      Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+      print(jsonFile.readAsStringSync());
+      print(jsonFileContent.toString());
       jsonFileContent.addAll(content);
       jsonFile.writeAsStringSync(json.encode(jsonFileContent));
     }
@@ -92,6 +98,9 @@ class _HomeState extends State<Home> {
             controller: keyInputController,
           ),
           new TextField(
+            keyboardType: TextInputType.multiline,
+            minLines: 3,
+            maxLines: null,
             controller: valueInputController,
           ),
           new Padding(padding: new EdgeInsets.only(top: 20.0)),
