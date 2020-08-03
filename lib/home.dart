@@ -1,5 +1,5 @@
 import 'dart:ffi';
-
+import 'note.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -12,14 +12,11 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-
-  TextEditingController keyInputController = new TextEditingController();
-  TextEditingController valueInputController = new TextEditingController();
-
   File jsonFile;
   Directory dir;
   String fileName = "myJSONFile.json";
   bool fileExists = false;
+  String filePresent;
   Map<String, dynamic> fileContent;
 
   void createFile(Map<String, dynamic> fileContent, Directory dir, String fileName) {
@@ -58,7 +55,12 @@ class _HomeState extends State<Home> {
       jsonFile = new File(p.join(dir.path, fileName));
       fileExists = jsonFile.existsSync();
       if(fileExists) {
-        this.setState(() => fileContent = json.decode(jsonFile.readAsStringSync()));
+        print("I exist");
+        this.setState(() => filePresent = "I do exist");
+      }
+      else {
+        print("I do not exist");
+        this.setState(() => filePresent = "Click on the create button to create notes");
       }
     });
   }
@@ -66,8 +68,6 @@ class _HomeState extends State<Home> {
   @override
   void dispose() {
     // TODO: implement dispose
-    keyInputController.dispose();
-    valueInputController.dispose();
     super.dispose();
   }
 
@@ -89,27 +89,43 @@ class _HomeState extends State<Home> {
       ),
       body: new Column(
         children: <Widget>[
-          new Padding(padding: new EdgeInsets.only(top: 10.0)),
-          new Text("File content: ", style: new TextStyle(fontWeight: FontWeight.bold),),
-          new Text(fileContent.toString()),
-          new Padding(padding: new EdgeInsets.only(top: 10.0)),
-          new Text("Add to JSON file: "),
-          new TextField(
-            controller: keyInputController,
-          ),
-          new TextField(
-            keyboardType: TextInputType.multiline,
-            minLines: 3,
-            maxLines: null,
-            controller: valueInputController,
-          ),
-          new Padding(padding: new EdgeInsets.only(top: 20.0)),
-          new RaisedButton(
-            child: new Text("Add key, value pair"),
-            onPressed: () => writeFile(keyInputController.text, valueInputController.text),
-          )
+          new Text(filePresent)
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async{
+          dynamic result = await Navigator.of(context).push(_createRoute());
+          fileExists = jsonFile.existsSync();
+          if(fileExists) {
+            print("I exist");
+            this.setState(() => filePresent = json.decode(jsonFile.readAsStringSync()).toString());
+          }
+          else {
+            print("I do not exist");
+            this.setState(() => filePresent = "Click on the create button to create notes");
+          }
+        },
+        child: Icon(Icons.create),
+        backgroundColor: Color(0xff212121),
+      ),
+    );
+  }
+
+  Route _createRoute() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => Note(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(0.0, 1.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
     );
   }
 }
