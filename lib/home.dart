@@ -110,12 +110,6 @@ class _HomeState extends State<Home> {
                           subtitle: Text(fileContent[key]),
                           onTap: () => onTapped(),
                       );
-//                      return new Row(
-//                          children: <Widget>[
-//                              new Text('${key} : '),
-//                              new Text(fileContent[key])
-//                          ],
-//                      );
                   },
               )
           )
