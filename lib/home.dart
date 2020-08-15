@@ -17,7 +17,7 @@ class _HomeState extends State<Home> {
   String fileName = "myJSONFile.json";
   bool fileExists = false;
   String filePresent;
-  Map<String, dynamic> fileContent;
+  Map<String, dynamic> fileContent = new Map();
 
   void createFile(Map<String, dynamic> fileContent, Directory dir, String fileName) {
     print("Creating a file");
@@ -27,6 +27,15 @@ class _HomeState extends State<Home> {
     print(fileContent.toString());
     file.writeAsStringSync(json.encode(fileContent));
     print("I am also here");
+  }
+
+  int itemCount() {
+    fileContent = json.decode(jsonFile.readAsStringSync());
+    return fileContent.length;
+  }
+
+  void onTapped() {
+    print("I am clicked");
   }
 
   void writeFile(String key, String value) {
@@ -56,7 +65,8 @@ class _HomeState extends State<Home> {
       fileExists = jsonFile.existsSync();
       if(fileExists) {
         print("I exist");
-        this.setState(() => filePresent = "I do exist");
+//        this.setState(() => filePresent = json.decode(jsonFile.readAsStringSync()).toString());
+//        this.setState(() => fileContent = json.decode(jsonFile.readAsStringSync()));
       }
       else {
         print("I do not exist");
@@ -89,8 +99,28 @@ class _HomeState extends State<Home> {
       ),
       body: new Column(
         children: <Widget>[
-          new Text(filePresent)
-        ],
+//          new Text(filePresent),
+          new Expanded(
+              child: (!fileExists || itemCount() == 0) ? Center(child: Text(filePresent)) : new ListView.builder(
+                  itemCount: itemCount(),
+                  itemBuilder: (BuildContext context, int index){
+                      String key = fileContent.keys.elementAt(index);
+                      return ListTile(
+                          title: Text(key),
+                          subtitle: Text(fileContent[key]),
+                          onTap: () => onTapped(),
+                      );
+//                      return new Row(
+//                          children: <Widget>[
+//                              new Text('${key} : '),
+//                              new Text(fileContent[key])
+//                          ],
+//                      );
+                  },
+              )
+          )
+
+          ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async{

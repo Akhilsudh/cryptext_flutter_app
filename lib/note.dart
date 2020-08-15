@@ -36,10 +36,14 @@ class _NoteState extends State<Note> {
     if(fileExists) {
       print("File Exists");
       Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+      List jsonList = jsonFileContent.values.toList(growable: true);
       print(jsonFile.readAsStringSync());
       print(jsonFileContent.toString());
       jsonFileContent.addAll(content);
       jsonFile.writeAsStringSync(json.encode(jsonFileContent));
+      for(String a in jsonFileContent.keys) {
+        print(jsonFileContent[a]);
+      }
     }
     else {
       print("File Does not exist");
